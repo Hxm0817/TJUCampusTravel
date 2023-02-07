@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>同济校园出行交通信息查询小程序 内测版v0.2</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <!-- css -->
+    <link href="./css/base.css" rel="stylesheet">
+    <link href="./css/main.css" rel="stylesheet">
+    <!--    <link href="./manifest.webmanifest" rel="manifest">-->
+
+</head>
+
+<body>
+<div id="app" style="width: 100%;">
+    <div style="background-clip:content-box;padding-top: 10px; margin-left: 15px; margin-right: 15px;">
+        <div class="head-info">
+            <button class="add-button" v-show="false"></button>
+            <img :src="'./assets/icon/'+line+'_icon.svg'" alt=""
+                 style="height: 80px; margin-left: 0px; margin-right: 10px;">
+            <h1 style="display: inline-block; height: 30px; margin-bottom: 0px; padding-bottom: 20px;">{{lineName}}
+            </h1>
+            <span style="float: right; margin-top: 60px;">
+                    <select @change="switchLine($event)">
+                        <option :key="item.value" :label="item.label" :value="item.value" v-for="item in lines">
+                            {{item.label}}
+                        </option>
+                    </select>
+                </span>
+
+            <h2 :style="{color: color, marginBottom: 5+'px'}">
+                <span>方向： {{directionText}}</span>
+                <span @click="reverseDirection" style="color: #B3B3B3; float: right;">
+                        <img alt="" src="./assets/icon/reversing.svg" style="width: 24px; margin-left: 20px;">
+                        换向
+                    </span>
+            </h2>
+        </div>
+
+        <template>
+            <iframe frameborder="0" height="600px" name="stationIframe"
+                    ref="stationIframe" src="./stations-frame.html" width="100%"></iframe>
+
+        </template>
+
+
+        <div class="description">
+            <h3>说明:</h3>
+            <p>
+                1. 到站时间为预估时间，仅供参考
+            </p>
+            <p>
+                2. 建议至少提前<b>5</b>分钟在停靠站等候
+            </p>
+        </div>
+
+        <hr color="#DCDCDC" size="2">
+
+                <span class="icon">
+                        <svg class="icon" height="14" p-id="3770" t="1666445931412"
+                             version="1.1" viewBox="0 0 1024 1024" width="14" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                    d="M675.1 368.1c4.2 0 8.4 0.1 12.5 0.3-21.9-117.8-144.9-208.1-293.3-208.1-163.9 0-296.8 110-296.8 245.6 0 79.5 45.7 150.3 116.5 195.1 0.9 0.6 2.7 1.7 2.7 1.7L188 691.6l107.3-54.1s3.4 1 5 1.4c29.5 8.1 61.1 12.5 93.9 12.5 6.7 0 13.3-0.3 19.9-0.6-6.1-18.7-9.4-38.3-9.4-58.6 0-123.7 121.1-224.1 270.4-224.1z m-177.6-86.7c23 0 41.6 17.9 41.6 39.9s-18.6 39.9-41.6 39.9-41.7-17.9-41.7-39.9 18.6-39.9 41.7-39.9z m-206.6 79.9c-23 0-41.7-17.9-41.7-39.9 0-22.1 18.6-39.9 41.7-39.9 23 0 41.7 17.9 41.7 39.9s-18.6 39.9-41.7 39.9zM928 593.8c0-114.6-112.2-207.5-250.7-207.5s-250.8 92.9-250.8 207.5 112.3 207.5 250.8 207.5c27.7 0 54.4-3.7 79.3-10.6 1.4-0.4 4.3-1.2 4.3-1.2l90.6 45.7-24.2-75.1s1.5-1 2.3-1.4c59.8-38 98.4-97.7 98.4-164.9z m-338-37.7c-19.4 0-35.2-15.1-35.2-33.8 0-18.6 15.8-33.7 35.2-33.7 19.5 0 35.2 15.1 35.2 33.7 0.1 18.6-15.7 33.8-35.2 33.8z m174.5 0c-19.4 0-35.2-15.1-35.2-33.8 0-18.6 15.7-33.7 35.2-33.7 19.5 0 35.2 15.1 35.2 33.7s-15.7 33.8-35.2 33.8z"
+                                    p-id="3771"></path>
+                        </svg>
+                    </span>
+
+                <span style="margin: 0px;height: 20px; float: left;">同济大学交通文化与城市发展协会 出品</span>
+            </p>
+        </div>
+
+    </div>
+</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="./js/main.js"></script>
+
+</html>
