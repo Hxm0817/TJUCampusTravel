@@ -11,34 +11,35 @@ var app4 = new Vue({
         selectedRadius: 8,
         favouredStation: "-1",
 
-        trainType: {
-            "0": "区间车",
-            "1": "全程车",
-            "2": "直达车"
+        busType: {
+            "0": "公交",
+            "1": "班车",
+            "2": "直达"
         },
         direction: false,   //是否为上行, 默认为下行
 
-        trainSchedules: undefined,
+        busSchedules: undefined,
         stations: new Map(),
-        trains: new Map(),
-        trainPosition: new Map(),
+        buss: new Map(),
+        busPosition: new Map(),
 
         firstPos: 15,
         perSegment: 100,
-        currentTrainId: "-1",
+        currentbusId: "-1",
         updatePeriod: 5000,
         firstId: 0,
         lastId: 0
     },
+
     created() {
         this.init();
         setInterval(() => {
-            this.loadTrains();
+            this.loadbuss();
             this.updateStationSchedule(this.currentStationId);
         }, 5000);
         setInterval(() => {
-            if (this.currentTrain !== "-1") {
-                this.showTrainInfo(this.currentTrain);
+            if (this.currentbus !== "-1") {
+                this.showbusInfo(this.currentbus);
             }
         }, 5000);
     },
@@ -54,33 +55,33 @@ var app4 = new Vue({
             });
         },
 
-        showTrainInfo(trainId) {
+        showbusInfo(busId) {
             //关闭正在展示的详情
-            if (this.currentTrainId !== "-1") {
-                this.trains.get(this.currentTrainId).isShowDetail = false;
+            if (this.currentbusId !== "-1") {
+                this.buss.get(this.currentbusId).isShowDetail = false;
                 this.$forceUpdate();
-                console.log(trainId === this.currentTrainId);
-                if (trainId === this.currentTrainId) {
-                    this.currentTrainId = "-1";
+                console.log(busId === this.currentbusId);
+                if (busId === this.currentbusId) {
+                    this.currentbusId = "-1";
                     return;
                 }
             }
-            this.currentTrainId = trainId;
-            let trainData = this.trains.get(trainId);
+            this.currentbusId = busId;
+            let busData = this.buss.get(busId);
 
-            trainData.type = this.formatTrainType(trainData.level);
-            trainData.terminal = this.formatTrainTerminal(trainData).name;
-            let terminalInfo = this.getTrainDataOfStation("-1", trainId);
-            trainData.terminalTime = myTime.formatTime(terminalInfo.arrivalTime);
+            busData.type = this.formatbusType(busData.level);
+            busData.terminal = this.formatbusTerminal(busData).name;
+            let terminalInfo = this.getbusDataOfStation("-1", busId);
+            busData.terminalTime = myTime.formatTime(terminalInfo.arrivalTime);
 
-            let nextInfo = this.getNextStationInfo(trainId);
+            let nextInfo = this.getNextStationInfo(busId);
             console.log('下一站信息');
             console.log(nextInfo);
-            trainData.nextStop = this.stations.get(nextInfo.stationId.toString()).name;
-            trainData.arriveNextTime = nextInfo.arrivalTime;
+            busData.nextStop = this.stations.get(nextInfo.stationId.toString()).name;
+            busData.arriveNextTime = nextInfo.arrivalTime;
 
-            if (typeof (trainData.isShowDetail) == "undefined" || !trainData.isShowDetail) {
-                trainData.isShowDetail = true;
+            if (typeof (busData.isShowDetail) == "undefined" || !busData.isShowDetail) {
+                busData.isShowDetail = true;
                 this.$forceUpdate();
             }
         },
@@ -96,9 +97,9 @@ var app4 = new Vue({
                 this.firstId = stationIds[0]
                 this.lastId = stationIds.slice(-1)[0]
 
-                if (typeof (res.data.trainType) != "undefined") {
-                    this.trainType = res.data.trainType
-                    console.log(this.trainType)
+                if (typeof (res.data.busType) != "undefined") {
+                    this.busType = res.data.busType
+                    console.log(this.busType)
                 }
                 this.direction = false;
                 for (let i = 0; i < names.length; i++) {
@@ -110,8 +111,9 @@ var app4 = new Vue({
                             "radius": 5,
                             "color": "#FFFFFF",
                             "strokeWidth": 0,
-                            "trains": [],
-                            "position": i
+                            "buss": [],
+                            "position": i,
+                            "transferLines": res.data.transferInfo[stationIds[i] + ""]
                         }
                     );
                 }
@@ -119,33 +121,33 @@ var app4 = new Vue({
                 this.initFavouredStation();
 
                 // 加载列车车次
-                this.loadTrainSchedules(this.line).then(() => {
-                    this.loadTrains();
+                this.loadbusSchedules(this.line).then(() => {
+                    this.loadbuss();
                 });
             }, () => {
                 console.log('Load ' + url + ' Error!');
             });
         },
 
-        async loadTrainSchedules(line) {
+        async loadbusSchedules(line) {
             let url = this.assertsPath + 'timetable/' + line + '/'
             if (this.isWorkDay()) {
-                url += line + '-workday' + '-train-schedule.json'
+                url += line + '-workday' + '-bus-schedule.json'
             } else {
-                url += line + '-restday' + '-train-schedule.json'
+                url += line + '-restday' + '-bus-schedule.json'
             }
             await axios.get(url).then(res => {
-                this.trainSchedules = res.data;
+                this.busSchedules = res.data;
             });
         },
 
 
-        addTrainPosition(position, trainId) {
+        addbusPosition(position, busId) {
             position = position.toString();
-            if (!this.trainPosition.has(position)) {
-                this.trainPosition.set(position, [])
+            if (!this.busPosition.has(position)) {
+                this.busPosition.set(position, [])
             }
-            this.trainPosition.get(position).push(trainId);
+            this.busPosition.get(position).push(busId);
         },
 
         getNowTime() {
@@ -153,58 +155,69 @@ var app4 = new Vue({
 
         },
 
-        loadTrains() {
-            console.log('Loading trains...');
+        loadbuss() {
+            console.log('Loading buss...');
             //1.判断是否已加载所有列车的时刻表
-            if (typeof (this.trainSchedules) === "undefined") {
+            if (typeof (this.busSchedules) === "undefined") {
                 console.log("列车时刻表未加载");
                 return;
             }
 
-            const scheduleArray = Object.values(this.trainSchedules)
+            const scheduleArray = Object.values(this.busSchedules)
 
             let now = this.getNowTime();
             console.log('now:' + now);
             //当前在线运营的列车：符合 "始发站到达时间 <= 当前时间 <= 终点站离开时间" 条件的列车
-            let onServiceTrains = scheduleArray
+            let onServicebuss = scheduleArray
                 .filter(element => this.selectDirection(element.direction))
                 .filter(element => now <= element.schedule[element.schedule.length - 1].departTime)
                 .filter(element => now >= element.schedule[0].arrivalTime)
             console.log('当前在线列车:');
-            console.log(onServiceTrains);
+            console.log(onServicebuss);
 
-            //记录在线运营列车的车次，用于删除this.trains中过时的列车
-            let onServiceTrainNumbers = new Map();
-            //更新this.trainPosition
-            this.trainPosition.clear();
+            //记录在线运营列车的车次，用于删除this.buss中过时的列车
+            let onServicebusNumbers = new Map();
+            //更新this.busPosition
+            this.busPosition.clear();
             //计算每列车的当前位置
-            onServiceTrains.forEach(train => {
-                onServiceTrainNumbers.set(train.trainId, '');
-                train.position = this.calcTrainPosition(train);
-                train.positionInView = this.calcTrainPositionInView(train.position);
-                this.addTrainPosition(train.position, train.trainId)
-                //把在运营的列车放入this.trains
-                this.trains.set(train.trainId, train)
+            onServicebuss.forEach(bus => {
+                onServicebusNumbers.set(bus.busId, '');
+                bus.position = this.calcbusPosition(bus);
+                bus.positionInView = this.calcbusPositionInView(bus.position);
+                this.addbusPosition(bus.position, bus.busId)
+                //把在运营的列车放入this.buss
+                this.buss.set(bus.busId, bus)
             });
             console.log('当前列车位置');
-            console.log(this.trainPosition);
-            //删除this.trains中在onServiceTrainNumbers没有的车次
-            for (const trainId of this.trains.keys()) {
-                if (!onServiceTrainNumbers.has(trainId)) {
-                    console.log('trainId' + '退出运营');
-                    this.trains.delete(trainId)
+            console.log(this.busPosition);
+            //删除this.buss中在onServicebusNumbers没有的车次
+            for (const busId of this.buss.keys()) {
+                if (!onServicebusNumbers.has(busId)) {
+                    console.log('busId' + '退出运营');
+                    this.buss.delete(busId)
                 }
             }
 
             //修改Map类型对象需要强制更新视图
             this.$forceUpdate();
-            console.log('trains loaded.');
+            console.log('buss loaded.');
         },
 
-        switchLine(line) {
+        switchLine(line, loadStationId) {
             this.line = line;
-            this.stations = new Map();
-            this.load(line);
+            this.load(line).then(() => {
+                // 加载列车车次
+                this.loadbusSchedules(line).then(() => {
+                    this.loadbuss()
+                })
+
+                if (typeof loadStationId == "undefined") {
+                    this.initFavouredStation()
+                    return
+                }
+
+                this.scrollToStation(loadStationId)
+            })
         },
 
         initFavouredStation() {
@@ -245,20 +258,20 @@ var app4 = new Vue({
             this.lastStationId = "-1"
             this.currentStationId = "-1";
             this.stations.forEach((station) => {
-                station.trains = [];
+                station.buss = [];
             });
         },
 
         reset() {
             this.resetStation();
-            this.resetTrains();
+            this.resetbuss();
             this.resetStationStyle();
         },
 
-        resetTrains() {
-            this.trains = new Map();
-            this.currentTrain = "-1";
-            this.trainPosition = new Map();
+        resetbuss() {
+            this.buss = new Map();
+            this.currentbus = "-1";
+            this.busPosition = new Map();
         },
 
         resetStationStyle() {
@@ -276,7 +289,7 @@ var app4 = new Vue({
             this.direction = !this.direction;
             this.reverseStations();
 
-            this.loadTrains();
+            this.loadbuss();
             this.scrollToFavouredStation();
         },
 
@@ -304,26 +317,26 @@ var app4 = new Vue({
         },
 
         updateStationSchedule(stationId) {
-            const TOTAL_DISPLAY_TRAIN_NUMBER = 3
+            const TOTAL_DISPLAY_bus_NUMBER = 3
             stationId = stationId.toString()
             if (stationId === "-1") {
                 return;
             }
-            let trainList = this.getLatestTrains(stationId, TOTAL_DISPLAY_TRAIN_NUMBER);
+            let busList = this.getLatestbuss(stationId, TOTAL_DISPLAY_bus_NUMBER);
             //暂无列车
-            if (trainList.length < TOTAL_DISPLAY_TRAIN_NUMBER) {
-                const futureTrains = this.getScheduleTrains(stationId).slice(0, TOTAL_DISPLAY_TRAIN_NUMBER - trainList.length)
+            if (busList.length < TOTAL_DISPLAY_bus_NUMBER) {
+                const futurebuss = this.getSchedulebuss(stationId).slice(0, TOTAL_DISPLAY_bus_NUMBER - busList.length)
 
-                let trainMap = new Map(trainList.map(e => {
-                    return [e.trainId, e]
+                let busMap = new Map(busList.map(e => {
+                    return [e.busId, e]
                 }))
-                futureTrains.forEach(e => {
-                    if (!trainMap.has(e.trainId)) {
-                        trainMap.set(e.trainId, e)
+                futurebuss.forEach(e => {
+                    if (!busMap.has(e.busId)) {
+                        busMap.set(e.busId, e)
                     }
                 })
 
-                trainList = Array.from(trainMap.values())
+                busList = Array.from(busMap.values())
 
                 let t = {
                     "status": "停止服务",
@@ -331,57 +344,53 @@ var app4 = new Vue({
                     "terminal": "",
                     "description": ""
                 }
-                if (trainList.length < 1) {
-                    trainList.push(t)
+                if (busList.length < 1) {
+                    busList.push(t)
                 }
             }
             //格式化数据
-            trainList.forEach(trainData => {
-                this.formatTrainData(trainData, stationId);
+            busList.forEach(busData => {
+                this.formatbusData(busData, stationId);
             });
             console.log(stationId + '站最近的列车');
-            console.log(trainList);
+            console.log(busList);
 
 
-            this.stations.get(stationId.toString()).trains = trainList;
+            this.stations.get(stationId.toString()).buss = busList;
         },
 
-        formatTrainData(trainData, stationId) {
-            if (typeof (trainData.schedule) == "undefined") {
+        formatbusData(busData, stationId) {
+            if (typeof (busData.schedule) == "undefined") {
                 return;
             }
-            trainData.status = this.formatTrainStatus(trainData);
+            busData.status = this.formatbusStatus(busData);
 
             //判断是否为始发站
             const judgeFirstStop = (sid, tData) => {
                 return Number(sid) === tData.schedule[0].stationId;
             }
-            const isFirstStop = judgeFirstStop(stationId, trainData)
-            trainData.eta = this.formatETA(trainData, isFirstStop);
+            const isFirstStop = judgeFirstStop(stationId, busData)
+            busData.eta = this.formatETA(busData, isFirstStop);
 
-            trainData.terminal = this.formatTrainTerminal(trainData).name;
+            busData.terminal = this.formatbusTerminal(busData).name;
 
-            trainData.description = this.formatTrainDescription(trainData, isFirstStop)
+            busData.description = this.formatbusDescription(busData, isFirstStop)
         },
-        formatTrainTerminal(trainData) {
-            let terminalId = trainData.schedule.slice(-1)[0].stationId;
+        
+        formatbusTerminal(busData) {
+            let terminalId = busData.schedule.slice(-1)[0].stationId;
             return this.stations.get(terminalId.toString());
         },
-        formatTrainStatus(trainData) {
-            if (trainData.arrivalTime === '......') {
+        
+        formatbusStatus(busData) {
+            if (busData.arrivalTime === '......') {
                 return '本站不停'
             }
-
             let now = this.getNowTime();
-            if (now < trainData.arrivalTime) {
+            if (now < busData.arrivalTime) {
                 let d1 = new Date('2023/01/01 ' + now);
-                let d2;
-                //凌晨0点到2点算为第2天
-                if (trainData.arrivalTime <= '02:00:00') {
-                    d2 = new Date('2023/01/02 ' + trainData.arrivalTime);
-                } else {
-                    d2 = new Date('2023/01/01 ' + trainData.arrivalTime);
-                }
+                let d2 = new Date('2023/01/01 ' + busData.arrivalTime);
+                
                 //当前时间和到达时间相差的秒数
                 let difference = Math.ceil((d2 - d1) / 1000)
                 if (difference <= 15) {
@@ -393,54 +402,55 @@ var app4 = new Vue({
                     // }
                     return min + '分钟';
                 }
-            } else if (now >= trainData.arrivalTime && now <= trainData.departTime) {
+            } else if (now >= busData.arrivalTime && now <= busData.departTime) {
                 return '车已到站'
-            } else if (now > trainData.departTime) {
+            } else if (now > busData.departTime) {
                 return '车已过站'
             }
         },
-        formatETA(trainData, isFirstStop) {
-            if (trainData.arrivalTime === '......') {
+
+        formatETA(busData, isFirstStop) {
+            if (busData.arrivalTime === '......') {
                 return 'No stop'
             }
             if (isFirstStop) {
-                return myTime.formatTime(trainData.departTime);
+                return myTime.formatTime(busData.departTime);
             }
 
-            return myTime.formatTime(trainData.arrivalTime);
+            return myTime.formatTime(busData.arrivalTime);
         },
 
-        formatTrainDescription(trainData, isFirstStop) {
-            const trainType = this.trainType[trainData.level.toString()]
-            trainData.description = ""
+        formatbusDescription(busData, isFirstStop) {
+            const busType = this.busType[busData.level.toString()]
+            busData.description = ""
             if (isFirstStop) {
-                trainData.description = "始发"
+                busData.description = "始发"
             }
-            if (trainType.includes('直')) {
-                return trainType
+            if (busType.includes('直达')) {
+                return busType
             }
-            return trainData.description
+            return busData.description
         },
 
-        formatTrainType(trainLevel) {
-            return this.trainType[trainLevel.toString()]
+        formatbusType(busLevel) {
+            return this.busType[busLevel.toString()]
         },
 
 
         //获取id为stationId车站最近number次列车
-        getLatestTrains(stationId, number) {
-            let trainList = [];
+        getLatestbuss(stationId, number) {
+            let busList = [];
             const rawStationId = stationId;
-            while (trainList.length < number) {
+            while (busList.length < number) {
                 stationId = stationId.toString();
                 console.log(stationId)
-                if (this.trainPosition.has(stationId)) {
-                    const trains = this.trainPosition.get(stationId);
-                    trains.forEach(element => {
-                        //element: trainId
-                        const trainDataOfStation = this.getTrainDataOfStation(rawStationId, element)
-                        if (trainDataOfStation !== undefined && trainDataOfStation.arrivalTime !== '......') {
-                            trainList.push(trainDataOfStation);
+                if (this.busPosition.has(stationId)) {
+                    const buss = this.busPosition.get(stationId);
+                    buss.forEach(element => {
+                        //element: busId
+                        const busDataOfStation = this.getbusDataOfStation(rawStationId, element)
+                        if (busDataOfStation !== undefined && busDataOfStation.arrivalTime !== '......') {
+                            busList.push(busDataOfStation);
                         }
                     });
                 }
@@ -453,38 +463,38 @@ var app4 = new Vue({
                     break;
                 }
             }
-            trainList.sort((obj1, obj2) => {
+            busList.sort((obj1, obj2) => {
                 return obj1.arrivalTime.localeCompare(obj2.arrivalTime)
             });
 
-            //切片，trainList长度小于等于number
-            return trainList.slice(0, number);
+            //切片，busList长度小于等于number
+            return busList.slice(0, number);
         },
 
-        //获取trainId次列车stationId站的时刻
-        getTrainDataOfStation(stationId, trainId) {
-            if (typeof (this.trainSchedules[trainId]) == "undefined") {
-                console.log('没有' + trainId + '班次的数据');
+        //获取busId次列车stationId站的时刻
+        getbusDataOfStation(stationId, busId) {
+            if (typeof (this.busSchedules[busId]) == "undefined") {
+                console.log('没有' + busId + '班次的数据');
                 return undefined
             }
             if (stationId === "-1") {
                 //查询终点站
-                return this.trainSchedules[trainId].schedule.slice(-1)[0];
+                return this.busSchedules[busId].schedule.slice(-1)[0];
             }
 
             //对象使用 = 赋值 修改引用会改变原对象
-            let trainData = Object.assign({}, this.trainSchedules[trainId]);
-            return this.toTrainDataOfStation(stationId, trainData)
+            let busData = Object.assign({}, this.busSchedules[busId]);
+            return this.tobusDataOfStation(stationId, busData)
         },
 
-        toTrainDataOfStation(stationId, rawTrainData) {
-            const schedule = rawTrainData.schedule.find(element => element.stationId === Number(stationId))
+        tobusDataOfStation(stationId, rawbusData) {
+            const schedule = rawbusData.schedule.find(element => element.stationId === Number(stationId))
             if (schedule === undefined) {
                 return
             }
-            rawTrainData.departTime = schedule.departTime;
-            rawTrainData.arrivalTime = schedule.arrivalTime;
-            return rawTrainData
+            rawbusData.departTime = schedule.departTime;
+            rawbusData.arrivalTime = schedule.arrivalTime;
+            return rawbusData
         },
 
         isWorkDay() {
@@ -493,29 +503,29 @@ var app4 = new Vue({
         },
 
         //计算列车当前所在车站/区间
-        calcTrainPosition(train) {
+        calcbusPosition(bus) {
             let now = this.getNowTime();
-            for (let i = 0; i < train.schedule.length - 1; i++) {
-                const departTime = train.schedule[i].departTime
-                const arrivalTime = train.schedule[i].arrivalTime
+            for (let i = 0; i < bus.schedule.length - 1; i++) {
+                const departTime = bus.schedule[i].departTime
+                const arrivalTime = bus.schedule[i].arrivalTime
                 if (now >= arrivalTime && now <= departTime) {
                     //在当前站点
-                    return train.schedule[i].stationId;
-                } else if (now > departTime && now < train.schedule[i + 1].arrivalTime) {
+                    return bus.schedule[i].stationId;
+                } else if (now > departTime && now < bus.schedule[i + 1].arrivalTime) {
                     //在当前站点与下一站之间
-                    return (train.schedule[i + 1].stationId + train.schedule[i].stationId) / 2;
+                    return (bus.schedule[i + 1].stationId + bus.schedule[i].stationId) / 2;
                 }
             }
             //在终点站
-            const terminalArrivalTime = train.schedule[train.schedule.length - 1].arrivalTime;
-            const terminalDepartTime = train.schedule[train.schedule.length - 1].departTime;
+            const terminalArrivalTime = bus.schedule[bus.schedule.length - 1].arrivalTime;
+            const terminalDepartTime = bus.schedule[bus.schedule.length - 1].departTime;
             if (now >= terminalArrivalTime && now <= terminalDepartTime) {
-                return train.schedule[train.schedule.length - 1].stationId;
+                return bus.schedule[bus.schedule.length - 1].stationId;
             }
         },
 
         //计算列车在页面中的位置
-        calcTrainPositionInView(position) {
+        calcbusPositionInView(position) {
             // 上一站id(不一定是停车站,只是当前位置的上一站)
             const lastId = this.direction ? Math.ceil(position) : Math.floor(position)
             let p = this.getStationPosition(lastId)
@@ -524,20 +534,20 @@ var app4 = new Vue({
         },
 
         //基于在线运营列车查询列车下一站信息
-        getNextStationInfo(trainId) {
-            if (!this.trains.get(trainId)) {
-                console.log(trainId + '不在运营时间内');
+        getNextStationInfo(busId) {
+            if (!this.buss.get(busId)) {
+                console.log(busId + '不在运营时间内');
             }
-            let trainData = Object.assign({}, this.trains.get(trainId));
-            let position = Number(trainData.position);
-            const route = trainData.route.split('-')
+            let busData = Object.assign({}, this.buss.get(busId));
+            let position = Number(busData.position);
+            const route = busData.route.split('-')
 
             //查询根据当前位置下一站id
             const nextId = route.filter(element => {
                 //过滤出id比当前位置大(下行)或小(上行)的站点, 其中第一个就是下一站id
                 return this.direction ? Number(element) <= position : Number(element) >= position
             })[0]
-            return trainData.schedule.find(element => element.stationId === Number(nextId))
+            return busData.schedule.find(element => element.stationId === Number(nextId))
         },
 
         /**
@@ -558,8 +568,8 @@ var app4 = new Vue({
          * 获取某站未来的列车
          * @param stationId
          */
-        getScheduleTrains(stationId) {
-            let trains = Array.from(this.preLoadTrains(stationId))
+        getSchedulebuss(stationId) {
+            let buss = Array.from(this.preLoadbuss(stationId))
                 .filter(element => {
                     return this.direction
                         ? element.schedule[0].stationId >= stationId
@@ -568,16 +578,16 @@ var app4 = new Vue({
                 .sort((obj1, obj2) => {
                     return obj1.schedule[0].departTime.localeCompare(obj2.schedule[0].departTime)
                 })
-            trains.forEach(e => this.toTrainDataOfStation(stationId, e))
-            trains = trains.filter(e => e !== undefined)
-            return Array.from(trains)
+            buss.forEach(e => this.tobusDataOfStation(stationId, e))
+            buss = buss.filter(e => e !== undefined)
+            return Array.from(buss)
         },
 
-        preLoadTrains() {
-            if (this.trainSchedules === undefined) {
+        preLoadbuss() {
+            if (this.busSchedules === undefined) {
                 return
             }
-            const scheduleArray = Object.values(this.trainSchedules)
+            const scheduleArray = Object.values(this.busSchedules)
             return scheduleArray
                 .filter(element => this.selectDirection(element.direction))
                 .filter(element => this.selectTime(element.schedule[0].departTime, true))
@@ -593,17 +603,12 @@ var app4 = new Vue({
             }
 
         },
-        //判断time是否在当前之间之前或之后, 并规定凌晨0-2点为较后的时间(00:05:23>23:58:01)
+
+        //判断time是否在当前之间之前或之后
         selectTime(time, isLatter) {
             let now = this.getNowTime();
-            const t = '02:00:00'
-            if (time >= t || (time <= t && now <= t)) {
-                //time不在0-2点或now和time都在0-2点, 则直接比较
-                return isLatter ? time >= now : time < now
-            } else {
-                //time在0-2点 或 now在time不在
-                return isLatter
-            }
+            return isLatter ? time >= now : time < now
+            
         }
     }
 })

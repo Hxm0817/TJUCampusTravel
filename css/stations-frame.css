@@ -9,9 +9,9 @@ li {
 
 }
 
-.train-time {
+.bus-time {
     margin-left: 35px;
-    width: 400px;
+    width: 350px;
     height: 60px;
     font-size: 14px;
     border-radius: 5px;
@@ -20,11 +20,11 @@ li {
     padding-bottom: 3px;
 }
 
-.train-time span {
+.bus-time span {
     display: block;
 }
 
-.train-time table {
+.bus-time table {
     border-collapse: collapse;
     color: #575757;
 }
@@ -45,9 +45,9 @@ li {
     display: inline-block;
 }
 
-.train-detail-info {
-    width: 1500px;
-    height: 60px;
+.bus-detail-info {
+    width: 250px;
+    height: 50px;
     position: relative;
     left: 25px;
     top: -45px;
@@ -55,52 +55,52 @@ li {
     display: inline-block;
 }
 
-.train-detail-info svg .st0 {
+.bus-detail-info svg .st0 {
     fill: #e9e9e9;
 }
 
-.train-detail-info svg .st2 {
+.bus-detail-info svg .st2 {
     fill: #231815;
 }
 
-.train-detail-info svg .st3 {
+.bus-detail-info svg .st3 {
     font-family: 'MiSans-Demibold';
 }
 
-.train-detail-info svg .st4 {
-    font-size: 10px;
+.bus-detail-info svg .st4 {
+    font-size: 8px;
 }
 
-.train-detail-info svg .st5 {
+.bus-detail-info svg .st5 {
     letter-spacing: normal;
 }
 
-.train-detail-info svg .st6 {
+.bus-detail-info svg .st6 {
     fill: none;
 }
 
-.train-detail-info svg .st7 {
+.bus-detail-info svg .st7 {
     font-family: 'MiSans-Bold';
 }
 
-.train-detail-info svg .st8 {
+.bus-detail-info svg .st8 {
     fill: #292929;
 }
 
-.train-detail-info svg .st9 {
+.bus-detail-info svg .st9 {
     font-size: 7px;
 }
 
-.train-detail-info svg .st10 {
-    font-size: 10.1543px;
+.bus-detail-info svg .st10 {
+    font-size: 6px;
 }
 
 
-.train-time table .gold {
+.bus-time table .gold {
     color: #D4AF37;
 }
 
-.train {
+.bus {
     width: 20px;
     margin-left: 5px;
     display: block;
@@ -108,7 +108,7 @@ li {
     z-index: 3;
 }
 
-.train path {
+.bus path {
     fill: #EA7600;
 }
 

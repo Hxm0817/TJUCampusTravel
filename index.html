@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>校区出行交通查询小程序</title>
+    <title>同济校园出行信息查询小程序 内测版v0.3</title>
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <!-- css -->
@@ -21,8 +21,8 @@
         <div class="head-info">
             <button class="add-button" v-show="false"></button>
             <img :src="'./assets/icon/'+line+'_icon.svg'" alt=""
-                 style="height: 80px; margin-left: 0px; margin-right: 10px;">
-            <h1 style="display: inline-block; height: 30px; margin-bottom: 0px; padding-bottom: 5px;">{{lineName}}
+                 style="height: 50px; margin-left: 0px; margin-right: 10px;">
+            <h1 style="display: inline-block; height: 50px; margin-bottom: 0px; padding-bottom: 20px;">{{lineName}}
             </h1>
             <span style="float: right; margin-top: 60px;">
                     <select @change="switchLine($event)">
@@ -32,17 +32,17 @@
                     </select>
                 </span>
 
-            <h2 :style="{color: color, marginBottom: 5+'px'}">
+            <h3 :style="{color: color, marginBottom: 5+'px'}">
                 <span>方向： {{directionText}}</span>
                 <span @click="reverseDirection" style="color: #B3B3B3; float: right;">
-                        <img alt="" src="./assets/icon/reversing.svg" style="width: 36px; margin-left: 20px;">
-                        切换方向
+                        <img alt="" src="./assets/icon/reversing.svg" style="width: 24px; margin-left: 50px;">
+                        换向
                     </span>
-            </h2>
+            </h3>
         </div>
 
         <template>
-            <iframe frameborder="0" height="600px" name="stationIframe"
+            <iframe frameborder="0" height="450px" name="stationIframe"
                     ref="stationIframe" src="./stations-frame.html" width="100%"></iframe>
 
         </template>
@@ -51,11 +51,17 @@
         <div class="description">
             <h3>说明:</h3>
             <p>
-                1. 受路况、天气等影响, 中途站及终点站到达时间存在一定误差。
+                1. 到站时间为预估时间，仅供参考
             </p>
             <p>
-                2. 建议至少提前<b>5</b>分钟在停靠站等候。
+                2. 点击站点或车辆图标，可查询具体车次信息
             </p>
+            <p>
+                3. 建议至少提前<b>5</b>分钟在停靠站等候
+            </p>
+            <h2>
+                备注：程序目前处于测试阶段，部分数据存在错误；北安跨线中途站数据暂缺；推荐调整为小号字体查看
+            </h2>
         </div>
 
         <hr color="#DCDCDC" size="2">
@@ -69,7 +75,7 @@
                         </svg>
                     </span>
 
-                <span style="margin: 3px;height: 14px; float: left;">同济大学交通文化与城市发展协会 出品</span>
+                <span style="margin: 0px;height: 20px; float: left;">同济大学交通文化与城市发展协会 出品</span>
             </p>
         </div>
 

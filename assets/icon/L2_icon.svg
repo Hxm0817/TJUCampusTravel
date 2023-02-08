@@ -1,12 +1,11 @@
-<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
- <defs>
-  <filter id="svg_2_blur">
-   <feGaussianBlur in="SourceGraphic" stdDeviation="0"/>
-  </filter>
- </defs>
+<svg width="800" height="300" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1">
+ <filter id="svg_2_blur">
+  <feGaussianBlur stdDeviation="0" in="SourceGraphic"/>
+ </filter>
+
  <g>
   <title>Layer 1</title>
-  <rect fill="#faca2e" x="0" y="65" width="800.00001" height="481.99998" id="svg_1" stroke-width="0" stroke="#7AD6CA"/>
-  <text fill="#ffffff" x="39.66667" y="375" id="svg_2" stroke-width="0" font-size="180" font-family="Noto Sans JP" text-anchor="start" xml:space="preserve" font-weight="normal" filter="url(#svg_2_blur)" stroke="#000">嘉定公交</text>
+  <rect fill="#FACA2E" height="300" width="800" class="st0" id="svg_1"/>
+  <text x="0" y="-160" font-size="180px" font-family="'SimHei'" filter="url(#svg_2_blur)" fill="#FFFFFF" class="st1 st2 st3" transform="matrix(1 0 0 1 39.6667 375)" id="svg_2">嘉定公交</text>
  </g>
 </svg>

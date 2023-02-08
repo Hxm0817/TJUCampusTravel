@@ -71,6 +71,6 @@ var app = new Vue({
     },
     mounted() {
         window.switchLine = this.switchLine;
-        window.reverseDirection = this.reverseDirection;
+        window.reverseDirection = this.reverseDirection
     }
 })
