@@ -22,8 +22,8 @@
             <button class="add-button" v-show="false"></button>
             <img :src="'./assets/icon/'+line+'_icon.svg'" alt=""
                  style="height: 50px; margin-left: 0px; margin-right: 10px;">
-            <h2 style="display: inline-block; height: 50px; margin-bottom: 0px; padding-bottom: 20px;">{{lineName}}
-            </h2>
+            <h3 style="display: inline-block; height: 50px; margin-bottom: 0px; padding-bottom: 20px;">{{lineName}}
+            </h3>
             <span style="float: right; margin-top: 60px;">
                     <select @change="switchLine($event)">
                         <option :key="item.value" :label="item.label" :value="item.value" v-for="item in lines">
@@ -32,13 +32,13 @@
                     </select>
                 </span>
 
-            <h3 :style="{color: color, marginBottom: 5+'px'}">
+            <h4 :style="{color: color, marginBottom: 5+'px'}">
                 <span>方向： {{directionText}}</span>
                 <span @click="reverseDirection" style="color: #B3B3B3; float: right;">
                         <img alt="" src="./assets/icon/reversing.svg" style="width: 24px; margin-left: 50px;">
                         换向
                     </span>
-            </h3>
+            </h4>
         </div>
 
         <template>
