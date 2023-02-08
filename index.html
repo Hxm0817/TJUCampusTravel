@@ -22,8 +22,8 @@
             <button class="add-button" v-show="false"></button>
             <img :src="'./assets/icon/'+line+'_icon.svg'" alt=""
                  style="height: 50px; margin-left: 0px; margin-right: 10px;">
-            <h1 style="display: inline-block; height: 50px; margin-bottom: 0px; padding-bottom: 20px;">{{lineName}}
-            </h1>
+            <h2 style="display: inline-block; height: 50px; margin-bottom: 0px; padding-bottom: 20px;">{{lineName}}
+            </h2>
             <span style="float: right; margin-top: 60px;">
                     <select @change="switchLine($event)">
                         <option :key="item.value" :label="item.label" :value="item.value" v-for="item in lines">
@@ -59,9 +59,9 @@
             <p>
                 3. 建议至少提前<b>5</b>分钟在停靠站等候
             </p>
-            <h2>
+            <h4>
                 备注：程序目前处于测试阶段，部分数据存在错误；北安跨线中途站数据暂缺；推荐调整为小号字体查看
-            </h2>
+            </h4>
         </div>
 
         <hr color="#DCDCDC" size="2">
